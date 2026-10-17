@@ -1,40 +1,17 @@
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import RequestEntityTooLarge
-from flask import Flask, Request, jsonify, render_template, request, send_file
+from flask import Flask, jsonify, render_template, request, send_file
 from PIL import Image, UnidentifiedImageError, features
 from io import BytesIO
-from datetime import datetime
 import warnings
-import piexif
-from piexif import helper
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-MULTIPART_OVERHEAD_BYTES = 64 * 1024
-
-
-class PixoraRequest(Request):
-    @property
-    def max_content_length(self):
-        if self.path in {"/api/metadata-editor"}:
-            return MAX_UPLOAD_BYTES + MULTIPART_OVERHEAD_BYTES
-        return super().max_content_length
-
 
 app = Flask(__name__)
-app.request_class = PixoraRequest
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
 MAX_IMAGE_PIXELS = 20_000_000
 WEBP_SUPPORTED = features.check("webp")
-MAX_METADATA_FIELD_LENGTHS = {
-    "title": 300,
-    "creator": 300,
-    "description": 3000,
-    "copyright": 500,
-    "keywords": 1000,
-}
-
 SUPPORTED_FORMATS = {
     "PNG": "PNG",
     "JPG": "JPEG",
@@ -258,161 +235,3 @@ def rotator():
 @app.get("/metadata")
 def metadata_viewer():
     return render_template("metadata.html")
-
-@app.get("/metadata-editor")
-def metadata_editor():
-    return render_template("metadata_editor.html")
-
-
-@app.post("/api/metadata-editor")
-def save_image_metadata():
-    uploaded = request.files.get("image")
-
-    if not uploaded or not uploaded.filename:
-        return jsonify({"error": "Please select an image."}), 400
-
-    if not uploaded.filename.lower().endswith((".jpg", ".jpeg")):
-        return jsonify({
-            "error": "Metadata editing currently supports JPG and JPEG only."
-        }), 415
-
-    try:
-        image_bytes = uploaded.stream.read(MAX_UPLOAD_BYTES + 1)
-
-        if not image_bytes:
-            return jsonify({"error": "The selected image is empty."}), 400
-
-        if len(image_bytes) > MAX_UPLOAD_BYTES:
-            return jsonify({
-                "error": "The image exceeds the 10 MB upload limit."
-            }), 413
-
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("error", Image.DecompressionBombWarning)
-                with Image.open(BytesIO(image_bytes)) as image:
-                    if image.format != "JPEG":
-                        return jsonify({
-                            "error": "Upload a valid JPEG image."
-                        }), 415
-
-                    image.verify()
-        except (UnidentifiedImageError, OSError, ValueError, EOFError, SyntaxError,
-                Image.DecompressionBombError, Image.DecompressionBombWarning):
-            return jsonify({
-                "error": "The uploaded file is not a valid JPEG image."
-            }), 400
-
-        try:
-            exif_dict = piexif.load(image_bytes)
-        except Exception:
-            app.logger.warning(
-                "Ignoring malformed EXIF metadata in uploaded JPEG.",
-                exc_info=True,
-            )
-            exif_dict = None
-
-        if exif_dict is not None:
-            try:
-                piexif.dump(exif_dict)
-            except Exception:
-                app.logger.warning(
-                    "Ignoring unsupported or malformed EXIF metadata in uploaded JPEG.",
-                    exc_info=True,
-                )
-                exif_dict = None
-
-        if exif_dict is None:
-            exif_dict = {
-                "0th": {}, "Exif": {}, "GPS": {}, "Interop": {},
-                "1st": {}, "thumbnail": None,
-            }
-
-        form = request.form
-
-        for field_name, max_length in MAX_METADATA_FIELD_LENGTHS.items():
-            value = form.get(field_name, "")
-            if value and len(value) > max_length:
-                return jsonify({
-                    "error": f"{field_name.replace('_', ' ').title()} exceeds the {max_length}-character limit."
-                }), 400
-
-        def set_text_if_present(ifd, tag, value):
-            value = value.strip()
-            if value:
-                exif_dict[ifd][tag] = value.encode("ascii", "replace") + b"\x00"
-
-        def set_windows_text_if_present(tag, value):
-            value = value.strip()
-            if value:
-                exif_dict["0th"][tag] = value.encode("utf-16le") + b"\x00\x00"
-
-        set_text_if_present(
-            "0th", piexif.ImageIFD.ImageDescription,
-            form.get("title", "")
-        )
-        set_windows_text_if_present(
-            piexif.ImageIFD.XPTitle, form.get("title", "")
-        )
-        set_text_if_present(
-            "0th", piexif.ImageIFD.Artist,
-            form.get("creator", "")
-        )
-        set_windows_text_if_present(
-            piexif.ImageIFD.XPAuthor, form.get("creator", "")
-        )
-        set_text_if_present(
-            "0th", piexif.ImageIFD.Copyright,
-            form.get("copyright", "")
-        )
-        description = form.get("description", "").strip()
-        if description:
-            exif_dict["Exif"][piexif.ExifIFD.UserComment] = helper.UserComment.dump(
-                description, encoding="unicode"
-            )
-            set_windows_text_if_present(piexif.ImageIFD.XPComment, description)
-
-        keywords = form.get("keywords", "").strip()
-        if keywords:
-            set_windows_text_if_present(piexif.ImageIFD.XPKeywords, keywords)
-
-        date_value = form.get("date_created", "").strip()
-
-        if date_value:
-            try:
-                parsed_date = datetime.fromisoformat(date_value)
-                exif_date = parsed_date.strftime("%Y:%m:%d %H:%M:%S")
-                date_bytes = exif_date.encode("ascii") + b"\x00"
-                exif_dict["0th"][piexif.ImageIFD.DateTime] = date_bytes
-                exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = date_bytes
-                exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = date_bytes
-            except ValueError:
-                return jsonify({
-                    "error": "The date format is invalid."
-                }), 400
-
-        output_exif = piexif.dump(exif_dict)
-        output = BytesIO()
-        piexif.insert(output_exif, image_bytes, output)
-
-        return send_file(
-            output,
-            mimetype="image/jpeg",
-            as_attachment=True,
-            download_name="pixora-edited.jpg"
-        )
-
-    except Exception:
-        app.logger.exception("Metadata export failed")
-        return jsonify({
-            "error": "Could not edit this image's metadata."
-        }), 500
-
-
-@app.errorhandler(RequestEntityTooLarge)
-def handle_request_too_large(_error):
-    return jsonify({"error": "The upload exceeds the 10 MB limit."}), 413
-
-
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", debug=False)

@@ -1,3 +1,2 @@
 Flask
 Pillow
-piexif>=1.1.3
