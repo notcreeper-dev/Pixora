@@ -1,0 +1,97 @@
+"use strict";
+
+window.PixoraBatch = (() => {
+    const MAX_FILES = 10;
+    const MAX_TOTAL_SIZE = 10 * 1024 * 1024;
+
+    function validateFiles(files) {
+        if (!files.length) throw new Error("Choose at least one image.");
+        if (files.length > MAX_FILES) {
+            throw new Error(`Choose no more than ${MAX_FILES} images at once.`);
+        }
+        if (files.some(file => !file.type.startsWith("image/"))) {
+            throw new Error("Select image files only.");
+        }
+        if (files.some(file => file.size === 0)) {
+            throw new Error("One of the selected files is empty.");
+        }
+        if (files.some(file => file.size > MAX_TOTAL_SIZE)) {
+            throw new Error("Each image must be 10 MB or smaller.");
+        }
+        if (files.reduce((total, file) => total + file.size, 0) > MAX_TOTAL_SIZE) {
+            throw new Error("The combined size of selected images must be 10 MB or less.");
+        }
+        return files;
+    }
+
+    function loadImage(file) {
+        const url = URL.createObjectURL(file);
+        const image = new Image();
+
+        return new Promise((resolve, reject) => {
+            image.onload = () => resolve({
+                image,
+                release: () => URL.revokeObjectURL(url)
+            });
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error(`${file.name} could not be opened as an image.`));
+            };
+            image.src = url;
+        });
+    }
+
+    function toBlob(canvas, type, quality = 0.92) {
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    reject(new Error("The browser could not export one of the images."));
+                    return;
+                }
+                resolve(blob);
+            }, type, quality);
+        });
+    }
+
+    function outputName(file, suffix, extension) {
+        const stem = file.name.replace(/\.[^.]+$/, "")
+            .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+            .trim() || "image";
+        return `${stem}-${suffix}.${extension}`;
+    }
+
+    async function downloadZip(outputs, onProgress = () => {}) {
+        if (!outputs.length || outputs.length > MAX_FILES) {
+            throw new Error(`A batch must contain between 1 and ${MAX_FILES} images.`);
+        }
+
+        const formData = new FormData();
+        outputs.forEach(({ blob, name }, index) => {
+            if (!blob || !blob.size) throw new Error(`Could not prepare ${name || "an image"}.`);
+            formData.append("files", blob, name);
+            onProgress(index + 1, outputs.length);
+        });
+
+        const response = await fetch("/download-batch", {
+            method: "POST",
+            body: formData
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error || "Could not create the ZIP download.");
+        }
+
+        const archive = await response.blob();
+        const url = URL.createObjectURL(archive);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = response.headers.get("Content-Disposition")?.match(/filename="?([^";]+)"?/i)?.[1]
+            || "pixora-images.zip";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    return { validateFiles, loadImage, toBlob, outputName, downloadZip };
+})();

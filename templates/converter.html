@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Convert images between PNG, JPG, and WebP formats with Pixora. Your Image, Your Rules.">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Image Converter | Pixora</title>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <script src="{{ url_for('static', filename='js/batch.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+
+<body>
+
+    {% include "_navigation.html" %}
+
+
+    <main class="container">
+        <section class="intro">
+            <p class="eyebrow">SIMPLE · FAST · FREE</p>
+            <h1>Convert your images.</h1>
+            <p class="subtitle">
+                Change image formats in a few clicks. Upload, choose a format,
+                and download your converted image.
+            </p>
+        </section>
+
+        <section class="converter-card">
+            <form id="converter-form">
+                <label class="upload-area" for="image-input" id="upload-area">
+                    <span class="upload-icon">↑</span>
+                    <strong>Choose an image</strong>
+                    <span>or drag and drop it here</span>
+                    <small>PNG, JPG, JPEG or WebP · Maximum 10 MB</small>
+                    <input type="file" id="image-input" name="image" accept="image/png,image/jpeg,image/webp" required>
+                </label>
+
+                <div id="preview-section" class="preview-section" hidden>
+                    <img id="image-preview" alt="Selected image preview">
+                    <div class="file-details">
+                        <strong id="file-name"></strong>
+                        <span id="file-info"></span>
+                    </div>
+                    <button type="button" id="remove-image" class="text-button">
+                        Remove
+                    </button>
+                </div>
+
+                <div class="settings">
+                    <label for="output-format">Convert to</label>
+                    <select id="output-format" name="format">
+                        <option value="PNG">PNG</option>
+                        <option value="JPG">JPG</option>
+                        <option value="WEBP">WebP</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="convert-button" class="primary-button">
+                    Convert image →
+                </button>
+
+                <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <p class="privacy-note">
+            Your images are processed by this application and are not stored
+            intentionally. Avoid uploading sensitive images.
+        </p>
+    </main>
+
+    <footer>
+    {% include "_footer.html" %}
+</body>
+
+</html>

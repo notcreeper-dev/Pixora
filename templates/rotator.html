@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rotate and flip images online with Pixora.">
+    <title>Image Rotator & Flipper — Pixora</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/rotator.css') }}">
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/batch.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/rotator.js') }}" defer></script>
+</head>
+<body>
+    {% include "_navigation.html" %}
+
+    <main class="rotator-page">
+        <section class="rotator-heading">
+            <p class="eyebrow">PIXORA IMAGE TOOLS</p>
+            <h1>Image Rotator <span>& Flipper</span></h1>
+            <p>Rotate, flip, preview, and download your images with ease.</p>
+        </section>
+
+        <section class="rotator-workspace">
+            <div class="rotator-panel">
+                <h2>Your image</h2>
+                <p class="panel-description">
+                    Choose an image to begin. Your transformations stay in your browser.
+                </p>
+
+                <label class="rotator-upload" for="rotator-file">
+                    <span class="upload-symbol" aria-hidden="true">＋</span>
+                    <strong>Select an image</strong>
+                    <span>PNG, JPG, JPEG, or WebP · Maximum 10 MB</span>
+                </label>
+
+                <input
+                    id="rotator-file"
+                    class="visually-hidden"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                >
+
+                <p id="rotator-error" class="rotator-error" role="alert" hidden></p>
+
+                <div id="rotator-editor" hidden>
+                    <div class="rotator-preview">
+                        <canvas id="rotator-canvas"
+                                aria-label="Image transformation preview"></canvas>
+                    </div>
+
+                    <p id="rotator-image-info" class="image-info"></p>
+
+                    <div class="control-group">
+                        <h3>Rotate</h3>
+                        <div class="control-buttons">
+                            <button type="button" id="rotate-left" class="tool-button">
+                                ↶ Rotate left 90°
+                            </button>
+                            <button type="button" id="rotate-right" class="tool-button">
+                                ↷ Rotate right 90°
+                            </button>
+                            <button type="button" id="rotate-half" class="tool-button">
+                                ↻ Rotate 180°
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>Flip</h3>
+                        <div class="control-buttons">
+                            <button type="button" id="flip-horizontal" class="tool-button">
+                                ⇆ Flip horizontally
+                            </button>
+                            <button type="button" id="flip-vertical" class="tool-button">
+                                ⇅ Flip vertically
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>Output format</h3>
+                        <label for="rotator-format" class="field-label">
+                            Download as
+                        </label>
+                        <select id="rotator-format" class="rotator-select">
+                            <option value="original">Keep original format</option>
+                            <option value="image/png">PNG</option>
+                            <option value="image/jpeg">JPEG</option>
+                            <option value="image/webp">WebP</option>
+                        </select>
+                    </div>
+
+                    <div class="rotator-actions">
+                        <button type="button" id="rotator-reset" class="tool-button">
+                            Reset changes
+                        </button>
+                        <button type="button" id="rotator-download" class="primary-button">
+                            Download image
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="rotator-help">
+                <h2>How it works</h2>
+                <ol>
+                    <li>Select an image from your device.</li>
+                    <li>Rotate or flip it using the controls.</li>
+                    <li>Choose an output format if needed.</li>
+                    <li>Download the transformed image.</li>
+                </ol>
+                <p>
+                    Your image is processed locally in your browser.
+                    It is not uploaded to the Pixora server by this tool.
+                </p>
+            </aside>
+        </section>
+    </main>
+
+    {% include "_footer.html" %}
+</body>
+</html>
