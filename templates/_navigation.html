@@ -11,6 +11,7 @@
         <a href="{{ url_for('rotator') }}" {% if request.path == '/rotate' %}aria-current="page"{% endif %}>Image Rotator</a>
         <a href="{{ url_for('compressor') }}" {% if request.path == '/compress' %}aria-current="page"{% endif %}>Image Compressor</a>
         <a href="{{ url_for('metadata_viewer') }}" {% if request.path == '/metadata' %}aria-current="page"{% endif %}>Metadata Viewer</a>
+        <a href="{{ url_for('privacy') }}" {% if request.path == '/privacy' %}aria-current="page"{% endif %}>Privacy</a>
     </nav>
 
     <div class="header-actions">

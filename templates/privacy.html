@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read Pixora's Privacy Policy to understand how we handle image uploads, usage data, cookies, and advertising.">
+    <title>Privacy Policy | Pixora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css') }}">
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/privacy.js') }}" defer></script>
+</head>
+<body>
+    {% include '_navigation.html' %}
+
+    <div class="privacy-progress" role="progressbar" aria-label="Policy reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="privacy-progress-value"></span>
+    </div>
+
+    <main class="privacy-page">
+        <header class="privacy-heading">
+            <span class="privacy-eyebrow">PIXORA · YOUR IMAGE, YOUR RULES</span>
+            <h1>Privacy Policy</h1>
+            <p class="privacy-updated">Last updated: October 17, 2026</p>
+        </header>
+
+        <div class="privacy-layout">
+            <nav class="privacy-index" aria-label="Privacy policy sections">
+                <h2>On this page</h2>
+                <ol>
+                    <li><a href="#information">Information We Process</a></li>
+                    <li><a href="#uploads">Image Uploads and Processing</a></li>
+                    <li><a href="#cookies">Cookies and Similar Technologies</a></li>
+                    <li><a href="#advertising">Advertising</a></li>
+                    <li><a href="#services">Third-Party Services</a></li>
+                    <li><a href="#security">Data Security and Retention</a></li>
+                    <li><a href="#children">Children's Privacy</a></li>
+                    <li><a href="#rights">Your Choices and Rights</a></li>
+                    <li><a href="#changes">Changes to This Policy</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ol>
+            </nav>
+
+            <article class="privacy-content">
+                <p class="privacy-intro">
+                    Pixora provides browser-based and server-based tools for working
+                    with images. This Privacy Policy explains what information may
+                    be processed when you use our website.
+                </p>
+
+        <h2 id="information">1. Information We Process</h2>
+        <p>
+            When you use Pixora, we may process images and files you choose
+            to upload, along with the settings required to perform your
+            requested operation.
+        </p>
+        <p>
+            Our hosting provider may also process technical information such
+            as IP addresses, request details, timestamps, and error logs to
+            operate and protect the website.
+        </p>
+
+        <h2 id="uploads">2. Image Uploads and Processing</h2>
+        <p>
+            Pixora processes uploaded images to provide the tool you request,
+            such as conversion, resizing, cropping, or metadata editing.
+            Images may be transmitted to our server for processing.
+        </p>
+        <p>
+            Do not upload confidential or sensitive images unless you are
+            comfortable with the processing involved. We will document any
+            third-party processing services here if we introduce them.
+        </p>
+        <p>
+            We do not claim that uploaded images are automatically deleted
+            immediately in every circumstance. Temporary storage, logging,
+            and retention depend on the implementation and hosting
+            infrastructure.
+        </p>
+
+        <h2 id="cookies">3. Cookies and Similar Technologies</h2>
+        <p>
+            Pixora or its service providers may use cookies or similar
+            technologies for essential website functions, preferences,
+            security, analytics, or advertising where enabled.
+        </p>
+
+        <h2 id="advertising">4. Advertising</h2>
+        <p>
+            If advertising is enabled, third-party advertising providers,
+            including Google, may use cookies or similar technologies to
+            serve, measure, and personalize ads as permitted by their
+            policies and applicable law.
+        </p>
+        <p>
+            Visitors can review Google's advertising and privacy information
+            and manage available ad personalization settings through Google.
+        </p>
+
+        <h2 id="services">5. Third-Party Services</h2>
+        <p>
+            Pixora relies on hosting and infrastructure providers to operate
+            the website. If we add analytics, advertising, donation, or
+            external image-processing services, those providers may process
+            information according to their own privacy policies.
+        </p>
+
+        <h2 id="security">6. Data Security and Retention</h2>
+        <p>
+            We take reasonable steps to protect the website and the
+            information processed through it. No online service can
+            guarantee absolute security. Data is retained only as required
+            for the relevant operational, legal, and security purposes,
+            subject to the capabilities of our service providers.
+        </p>
+
+        <h2 id="children">7. Children's Privacy</h2>
+        <p>
+            Pixora is not intended to collect personal information from
+            children in violation of applicable law. If you believe a child
+            has provided personal information that should not have been
+            collected, contact us so we can review the matter.
+        </p>
+
+        <h2 id="rights">8. Your Choices and Rights</h2>
+        <p>
+            Depending on your location and applicable law, you may have
+            rights to request access to, correction of, or deletion of
+            personal information. Contact us to make a request.
+        </p>
+
+        <h2 id="changes">9. Changes to This Policy</h2>
+        <p>
+            We may update this Privacy Policy as Pixora's features and
+            services change. Updates will be published on this page with
+            a revised date.
+        </p>
+
+        <h2 id="contact">10. Contact</h2>
+        <p>
+            For privacy questions or requests, contact the Pixora team at
+            <a href="mailto:YOUR-CONTACT-EMAIL@example.com">
+                YOUR-CONTACT-EMAIL@example.com
+            </a>.
+        </p>
+            </article>
+        </div>
+    </main>
+
+    {% include '_footer.html' %}
+</body>
+</html>

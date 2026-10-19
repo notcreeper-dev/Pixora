@@ -236,3 +236,11 @@ def rotator():
 @app.get("/metadata")
 def metadata_viewer():
     return render_template("metadata.html")
+
+@app.get("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
